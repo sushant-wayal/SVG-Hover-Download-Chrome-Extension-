@@ -1,56 +1,129 @@
+let active = false;
+
+let downloadType = JSON.parse(localStorage.getItem("switchState")) ? JSON.parse(localStorage.getItem("switchState")) : [false, true];
+
+let mouseFollower = document.createElement("div");
+mouseFollower.style.position = "fixed";
+mouseFollower.style.top = "0";
+mouseFollower.style.left = "0";
+mouseFollower.style.display = "none";
+mouseFollower.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+mouseFollower.style.color = "white";
+mouseFollower.style.padding = "10px";
+mouseFollower.style.zIndex = "9999";
+mouseFollower.style.fontSize = "14px";
+mouseFollower.style.borderRadius = "5px";
+
+document.body.appendChild(mouseFollower);
+
+document.addEventListener("mousemove", (event) => {
+    if (!active) {
+        mouseFollower.style.display = "none";
+        display.style.display = "none";
+        exit.style.display = "none";
+    } else {
+        mouseFollower.style.display = "block";
+        display.style.display = "flex";
+        exit.style.display = "block";
+    }
+    mouseFollower.style.left = `${event.x}px`;
+    mouseFollower.style.top = `${event.y}px`;
+})
+
 let display = document.createElement("div");
-display.id = "display";
+
 display.style.position = "fixed";
 display.style.top = "0";
-display.style.left = "0";
-display.style.maxWidth = "500px";
-display.style.display = "none";
+display.style.right = "0";
+display.style.maxWidth = "200px";
 display.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-display.style.color = "white";
 display.style.padding = "10px";
 display.style.zIndex = "9999";
 display.style.fontSize = "14px";
 display.style.borderRadius = "5px";
+display.style.display = "flex";
+display.style.flexDirection = "row";
+display.style.justifyContent = "start";
+display.style.alignItems = "center";
+display.style.gap = "6px";
+display.style.flexWrap = "wrap";
 
 document.body.appendChild(display);
 
-document.addEventListener("mousemove", (event) => {
-    display.style.display = "block";
-    display.style.left = `${event.x}px`;
-    display.style.top = `${event.y}px`;
-})
+let exit = document.createElement("button");
+exit.innerHTML = "Exit Hover SVG Downloader";
+exit.style.position = "fixed";
+exit.style.bottom = "0";
+exit.style.right = "0";
+exit.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+exit.style.color = "white";
+exit.style.padding = "10px";
+exit.style.zIndex = "9999";
+exit.style.fontSize = "14px";
+exit.style.borderRadius = "5px";
+exit.style.border = "none";
+exit.style.cursor = "pointer";
+
+exit.addEventListener("click", () => {
+    mouseFollower.style.display = "none";
+    display.style.display = "none";
+    exit.style.display = "none";
+    active = false;
+});
+
+document.body.appendChild(exit);
 
 let isClicked = false;
 
-let allSvgs = [];
-
 document.addEventListener("mouseover", (event) => {
     let element = event.target;
-    allSvgs = Array.from(element.querySelectorAll("svg"));
-    allSvgs = allSvgs.map(svg => svg.outerHTML);
+    let allSvgs = [...new Set(Array.from(element.querySelectorAll("svg")).map(svg => svg.outerHTML))];
     if (allSvgs.length > 0) {
-        display.style.display = "block";
+        mouseFollower.style.display = "block";
         let svgs = allSvgs;
-        display.innerText = `Found ${svgs.length} SVG`;
-        element.addEventListener("click", async (event) => {
+        mouseFollower.innerHTML = `<p>Found ${svgs.length} SVG</p>`;
+        element.addEventListener("click", event => {
             event.preventDefault();
             if (isClicked) {
                 return;
             }
             isClicked = true;
-            const blobs = [];
-            allSvgs.forEach((svg, index) => {
-                const svgData = `data:image/svg+xml,${encodeURIComponent(svg)}`;
-                const svgName = `svg-${index}-${Date.now()}.svg`;
-                const svgBlob = new Blob([svgData], { type: "text/plain" });
-                blobs.push({ name: svgName, blob: svgBlob });
+            while (display.firstChild) {
+                display.removeChild(display.firstChild);
+            }
+            allSvgs.forEach(svg => {
+                let thisSvg = document.createElement("div");
+                thisSvg.style.border = "1px solid white";
+                thisSvg.style.padding = "10px";
+                thisSvg.style.borderRadius = "5px";
+                thisSvg.style.cursor = "pointer";
+                thisSvg.innerHTML = svg;
+                display.appendChild(thisSvg);
+                thisSvg.addEventListener("mouseover", () => {
+                    thisSvg.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
+                });
+                thisSvg.addEventListener("mouseout", () => {
+                    thisSvg.style.backgroundColor = "transparent";
+                });
+                thisSvg.addEventListener("click", () => {
+                    console.log("clicked");
+                    if (downloadType[0]) {
+                        let canvas = document.createElement("canvas");
+                        let ctx = canvas.getContext("2d");
+                        let img = new Image();
+                        img.src = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+                        img.onload = () => {
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            ctx.drawImage(img, 0, 0);
+                            chrome.runtime.sendMessage({ url: canvas.toDataURL(), filename: `svg-${Date.now()}.png` });
+                        }
+                    }
+                    if (downloadType[1]) {
+                        chrome.runtime.sendMessage({ url: `data:image/svg+xml,${encodeURIComponent(svg)}`, filename: `svg-${Date.now()}.svg` });
+                    }
+                });
             });
-            console.log("Blobs", blobs);
-            const zipBlob = new Blob(blobs, { type: "application/zip" });
-            console.log("zipBlob",zipBlob);
-            const url = window.URL.createObjectURL(zipBlob);
-            console.log("url",url);
-            chrome.runtime.sendMessage({url});
             setTimeout(() => {
                 isClicked = false;
             }, 1000);
@@ -59,6 +132,9 @@ document.addEventListener("mouseover", (event) => {
 });
 
 chrome.runtime.onMessage.addListener(message => {
-    const { url } = message;
-    window.URL.revokeObjectURL(url);
+    downloadType = message.switchState ? message.switchState : downloadType;
+    localStorage.setItem("switchState", JSON.stringify(downloadType));
+    if (message.active) {
+        active = message.active;
+    }
 });

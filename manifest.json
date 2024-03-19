@@ -1,28 +1,28 @@
 {
-    "manifest_version": 3,
-    "name": "SVG Hover Download",
-    "version": "0.0.1",
-    "description": "Hover to Download SVGs",
-    "permissions": [
-      "activeTab",
-      "downloads"
-    ],
-    "action": {
-      "default_popup": "popup.html"
-    },
-    "background": {
-        "service_worker": "background.js"
-    },
-    "content_scripts": [
-      {
-        "matches": ["<all_urls>"],
-        "js": ["content.js"]
-      }
-    ],
-    "content_security_policy": {
-      "directives": {
-        "script-src": ["'self'", "FileSaver.min.js"]
-      }
-    }
+	"manifest_version": 3,
+	"name": "SVG Hover Download",
+	"version": "0.0.1",
+	"description": "Hover to Download SVGs",
+	"permissions": [
+		"activeTab",
+		"downloads"
+	],
+	"action": {
+		"default_popup": "popup.html"
+	},
+	"background": {
+		"service_worker": "background.js"
+	},
+	"content_scripts": [
+		{
+		"matches": ["<all_urls>"],
+		"js": ["content.js"]
+		}
+	],
+	"content_security_policy": {
+		"directives": {
+		"script-src": ["'self'", "FileSaver.min.js", "jszip.min.js"]
+		}
+	}
 }
   
