@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="popup.css">
+    <title>SVG Hover Download</title>
+</head>
+<body>
+    <div id="allOptions">
+        <p id="downloadText">Download As : </p>
+        <div class="options">
+            <p>PNG</p>
+            <div class="toggle">
+                <div class="switch"></div>
+            </div>
+        </div>
+        <div class="options">
+            <p>JPEG</p>
+            <div class="toggle">
+                <div class="switch"></div>
+            </div>
+        </div>
+        <div class="options">
+            <p>SVG</p>
+            <div id="svgToggle" class="toggle">
+                <div id="svgSwitch" class="switch"></div>
+            </div>
+        </div>
+    </div>
+    <div id="downloads">
+        <p id="instruction">Hover and click on Selected SVGs</p>
+        <div id="seperator">
+            <div class="line"></div>
+            <p>OR</p>
+            <div class="line"></div>
+        </div>
+        <button id="downloadAll">
+            Download all SVGs
+        </button>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
