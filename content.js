@@ -16,6 +16,43 @@ mouseFollower.style.borderRadius = "5px";
 
 document.body.appendChild(mouseFollower);
 
+let display = document.createElement("div");
+
+display.style.position = "fixed";
+display.style.top = "0";
+display.style.right = "0";
+display.style.maxWidth = "200px";
+display.style.maxHeight = "100vh";
+display.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+display.style.padding = "10px";
+display.style.zIndex = "9999";
+display.style.fontSize = "14px";
+display.style.borderRadius = "5px";
+display.style.display = "none";
+display.style.flexDirection = "row";
+display.style.justifyContent = "start";
+display.style.alignItems = "center";
+display.style.gap = "6px";
+display.style.flexWrap = "wrap";
+display.style.overflowY = "scroll";
+
+document.body.appendChild(display);
+
+let exit = document.createElement("button");
+exit.innerHTML = "Exit Hover SVG Downloader";
+exit.style.display = "none";
+exit.style.position = "fixed";
+exit.style.bottom = "0";
+exit.style.left = "0";
+exit.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+exit.style.color = "white";
+exit.style.padding = "10px";
+exit.style.zIndex = "9999";
+exit.style.fontSize = "14px";
+exit.style.borderRadius = "5px";
+exit.style.border = "none";
+exit.style.cursor = "pointer";
+
 document.addEventListener("mousemove", (event) => {
     if (!active) {
         mouseFollower.style.display = "none";
@@ -29,40 +66,6 @@ document.addEventListener("mousemove", (event) => {
     mouseFollower.style.left = `${event.x}px`;
     mouseFollower.style.top = `${event.y}px`;
 })
-
-let display = document.createElement("div");
-
-display.style.position = "fixed";
-display.style.top = "0";
-display.style.right = "0";
-display.style.maxWidth = "200px";
-display.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-display.style.padding = "10px";
-display.style.zIndex = "9999";
-display.style.fontSize = "14px";
-display.style.borderRadius = "5px";
-display.style.display = "flex";
-display.style.flexDirection = "row";
-display.style.justifyContent = "start";
-display.style.alignItems = "center";
-display.style.gap = "6px";
-display.style.flexWrap = "wrap";
-
-document.body.appendChild(display);
-
-let exit = document.createElement("button");
-exit.innerHTML = "Exit Hover SVG Downloader";
-exit.style.position = "fixed";
-exit.style.bottom = "0";
-exit.style.right = "0";
-exit.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-exit.style.color = "white";
-exit.style.padding = "10px";
-exit.style.zIndex = "9999";
-exit.style.fontSize = "14px";
-exit.style.borderRadius = "5px";
-exit.style.border = "none";
-exit.style.cursor = "pointer";
 
 exit.addEventListener("click", () => {
     mouseFollower.style.display = "none";
