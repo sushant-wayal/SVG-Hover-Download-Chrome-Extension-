@@ -129,7 +129,7 @@ document.addEventListener("mouseover", (event) => {
     let element = event.target;
     let allSvgs = [...new Set(Array.from(element.querySelectorAll("svg")).map(svg => svg.outerHTML))];
     if (allSvgs.length > 0) {
-        mouseFollower.style.display = "block";
+        mouseFollower.style.display = active ? "block" : "none";
         mouseFollower.innerHTML = `<p>Found ${allSvgs.length} SVG</p>`;
         element.addEventListener("click", (event) => displaySvgs(event, allSvgs));
     }
