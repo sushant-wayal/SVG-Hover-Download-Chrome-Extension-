@@ -75,59 +75,60 @@ document.body.appendChild(exit);
 
 let isClicked = false;
 
+const displaySvgs = (event, allSvgs) => {
+    event.preventDefault();
+    if (isClicked) {
+        return;
+    }
+    isClicked = true;
+    while (display.firstChild) {
+        display.removeChild(display.firstChild);
+    }
+    allSvgs.forEach(svg => {
+        let thisSvg = document.createElement("div");
+        thisSvg.style.border = "1px solid white";
+        thisSvg.style.padding = "10px";
+        thisSvg.style.borderRadius = "5px";
+        thisSvg.style.cursor = "pointer";
+        thisSvg.innerHTML = svg;
+        display.appendChild(thisSvg);
+        thisSvg.addEventListener("mouseover", () => {
+            thisSvg.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
+        });
+        thisSvg.addEventListener("mouseout", () => {
+            thisSvg.style.backgroundColor = "transparent";
+        });
+        thisSvg.addEventListener("click", () => {
+            console.log("clicked");
+            if (downloadType[0]) {
+                let canvas = document.createElement("canvas");
+                let ctx = canvas.getContext("2d");
+                let img = new Image();
+                img.src = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    chrome.runtime.sendMessage({ url: canvas.toDataURL(), filename: `svg-${Date.now()}.png` });
+                }
+            }
+            if (downloadType[1]) {
+                chrome.runtime.sendMessage({ url: `data:image/svg+xml,${encodeURIComponent(svg)}`, filename: `svg-${Date.now()}.svg` });
+            }
+        });
+    });
+    setTimeout(() => {
+        isClicked = false;
+    }, 1000);
+}
+
 document.addEventListener("mouseover", (event) => {
     let element = event.target;
     let allSvgs = [...new Set(Array.from(element.querySelectorAll("svg")).map(svg => svg.outerHTML))];
     if (allSvgs.length > 0) {
         mouseFollower.style.display = "block";
-        let svgs = allSvgs;
-        mouseFollower.innerHTML = `<p>Found ${svgs.length} SVG</p>`;
-        element.addEventListener("click", event => {
-            event.preventDefault();
-            if (isClicked) {
-                return;
-            }
-            isClicked = true;
-            while (display.firstChild) {
-                display.removeChild(display.firstChild);
-            }
-            allSvgs.forEach(svg => {
-                let thisSvg = document.createElement("div");
-                thisSvg.style.border = "1px solid white";
-                thisSvg.style.padding = "10px";
-                thisSvg.style.borderRadius = "5px";
-                thisSvg.style.cursor = "pointer";
-                thisSvg.innerHTML = svg;
-                display.appendChild(thisSvg);
-                thisSvg.addEventListener("mouseover", () => {
-                    thisSvg.style.backgroundColor = "rgba(255, 255, 255, 0.2)";
-                });
-                thisSvg.addEventListener("mouseout", () => {
-                    thisSvg.style.backgroundColor = "transparent";
-                });
-                thisSvg.addEventListener("click", () => {
-                    console.log("clicked");
-                    if (downloadType[0]) {
-                        let canvas = document.createElement("canvas");
-                        let ctx = canvas.getContext("2d");
-                        let img = new Image();
-                        img.src = `data:image/svg+xml,${encodeURIComponent(svg)}`;
-                        img.onload = () => {
-                            canvas.width = img.width;
-                            canvas.height = img.height;
-                            ctx.drawImage(img, 0, 0);
-                            chrome.runtime.sendMessage({ url: canvas.toDataURL(), filename: `svg-${Date.now()}.png` });
-                        }
-                    }
-                    if (downloadType[1]) {
-                        chrome.runtime.sendMessage({ url: `data:image/svg+xml,${encodeURIComponent(svg)}`, filename: `svg-${Date.now()}.svg` });
-                    }
-                });
-            });
-            setTimeout(() => {
-                isClicked = false;
-            }, 1000);
-        });
+        mouseFollower.innerHTML = `<p>Found ${allSvgs.length} SVG</p>`;
+        element.addEventListener("click", (event) => displaySvgs(event, allSvgs));
     }
 });
 
@@ -136,5 +137,9 @@ chrome.runtime.onMessage.addListener(message => {
     localStorage.setItem("switchState", JSON.stringify(downloadType));
     if (message.active) {
         active = message.active;
+    }
+    if (message.downloadAll) {
+        let allSvgs = [...new Set(Array.from(document.querySelectorAll("svg")).map(svg => svg.outerHTML))];
+        displaySvgs({ preventDefault: () => { } }, allSvgs);
     }
 });

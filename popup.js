@@ -40,3 +40,13 @@ buttons.forEach((button, index) => {
     toggleState(button, index, false);
     button.addEventListener("click", () => toggleState(button, index, true));
 });
+
+let downloadAll = document.querySelector("#downloadAll");
+
+downloadAll.addEventListener("click", () => {
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        tabs.forEach(tab => {
+            chrome.tabs.sendMessage(tab.id, {downloadAll: true});
+        });
+    });
+});
