@@ -78,8 +78,7 @@ document.body.appendChild(exit);
 
 let isClicked = false;
 
-const displaySvgs = (event, allSvgs) => {
-    event.preventDefault();
+const displaySvgs = (allSvgs) => {
     if (isClicked) {
         return;
     }
@@ -131,7 +130,7 @@ document.addEventListener("mouseover", (event) => {
     if (allSvgs.length > 0) {
         mouseFollower.style.display = active ? "block" : "none";
         mouseFollower.innerHTML = `<p>Found ${allSvgs.length} SVG</p>`;
-        element.addEventListener("click", (event) => displaySvgs(event, allSvgs));
+        element.addEventListener("click", () => displaySvgs(allSvgs));
     }
 });
 
@@ -143,6 +142,6 @@ chrome.runtime.onMessage.addListener(message => {
     }
     if (message.downloadAll) {
         let allSvgs = [...new Set(Array.from(document.querySelectorAll("svg")).map(svg => svg.outerHTML))];
-        displaySvgs({ preventDefault: () => { } }, allSvgs);
+        displaySvgs(allSvgs);
     }
 });
